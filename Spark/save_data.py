@@ -25,13 +25,11 @@ def load_es(jd, es_host):
     es_write_conf = {
         "es.nodes" : es_host,
         "es.port" : "9200",
-        "es.resource" : 'jd/postings',
+        "es.resource" : 'uniq/jobs',
         "es.input.json": "yes",
-        "es.mapping.id": "uniq_id"
+        "es.mapping.id": "uniq_id",
+        "es.batch.size.entries": "100",
     }
-
-    if es.indices.exists(index="jd"):
-        es.indices.delete(index='jd', ignore=[400, 404])
 
     print(colored("[PROCESSING]: Converting to RDD", "red"))
     jd_rdd = jd.rdd.map(lambda item: {
@@ -63,6 +61,7 @@ def update_state_list(jd_state):
     print(colored("Generate State list", "green"))
     jd_state = jd_state.distinct()
     state_list = [row['state'] for row in jd_state.collect()]
+    state_list = [s for s in state_list if s]
     state_list.sort()
     dump_pickle(state_list,'jd-parquet', 'assets/state.pkl')
 

@@ -11,10 +11,10 @@ import requests
 import boto3
 import pickle
 import json
-
+import config
 # AWS Config
-ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY_ID")
-SECRET_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+ACCESS_KEY = config.AWS_ACCESS_KEY_ID #os.environ.get("AWS_ACCESS_KEY_ID")
+SECRET_KEY = config.AWS_SECRET_ACCESS_KEY #os.environ.get("AWS_SECRET_ACCESS_KEY")
 # Elasticsearch Config
 es_host = '10.0.0.13'
 es = Elasticsearch([{'host': es_host, 'port': 9200}])
@@ -51,12 +51,12 @@ def new_query(state, tags):
 
 def make_new_query(state='NY', tags=[]):
     if r.status_code == 200:
-        results = es.search(index='jd',body=new_query(state, tags))
+        results = es.search(index='uniq',body=new_query(state, tags))
         return results['hits']['hits']
     return
 
 def recs_query(state, keywords):
-    body = {"size" : 4,
+    body = {"size" : 5,
         'query':{
             'bool':{
                 'filter':[{
@@ -76,8 +76,8 @@ def recs_query(state, keywords):
 
 def make_rec_query(state='NY', keywords=[]):
     if r.status_code == 200:
-        results = es.search(index='jd',body=recs_query(state, keywords))
-        return results['hits']['hits']
+        results = es.search(index='uniq',body=recs_query(state, keywords))
+        return results['hits']['hits'][1:]
     return
 
 # Read in tags and state options
@@ -117,7 +117,7 @@ app.layout = html.Div([
                     dcc.Dropdown(id='states',
                         options=[{'label': s, 'value': s} for s in state_list],
                         placeholder = 'Select your state',
-                        value="",
+                        value="NY",
                         className='w3-input w3-margin-bottom'
                     ),
                     dcc.Dropdown(id='tags',
@@ -134,55 +134,45 @@ app.layout = html.Div([
                     )
                 ]),
                 html.Div([
-                    dbc.Button(
-                        [top_tags[0][0].capitalize(), dbc.Badge(top_tags[0][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-1', className='w3-auto w3-blue tags4'
+                    dbc.Button('Python',
+                        id = 'tag-1', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[1][0].capitalize(), dbc.Badge(top_tags[1][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-2', className='w3-auto w3-blue tags4'
+                    dbc.Button('Java',
+                        id = 'tag-2', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[2][0].capitalize(), dbc.Badge(top_tags[2][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-3', className='w3-auto w3-blue tags4'
+                    dbc.Button('Spark',
+                        id = 'tag-3', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[3][0].capitalize(), dbc.Badge(top_tags[3][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-4', className='w3-auto w3-blue tags4'
+                    dbc.Button('Database',
+                        id = 'tag-4', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[4][0].capitalize(), dbc.Badge(top_tags[4][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-5', className='w3-auto w3-blue tags4'
+                    dbc.Button('Aws',
+                        id = 'tag-5', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[5][0].capitalize(), dbc.Badge(top_tags[5][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-6', className='w3-auto w3-blue tags4'
+                    dbc.Button('Elasticsearch',
+                        id = 'tag-6', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[6][0].capitalize(), dbc.Badge(top_tags[6][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-7', className='w3-auto w3-blue tags4'
+                    dbc.Button('Postgresql',
+                        id = 'tag-7', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[7][0].capitalize(), dbc.Badge(top_tags[7][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-8', className='w3-auto w3-blue tags4'
+                    dbc.Button('Architecture',
+                        id = 'tag-8', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[8][0].capitalize(), dbc.Badge(top_tags[8][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-9', className='w3-auto w3-blue tags4'
+                    dbc.Button('Sql',
+                        id = 'tag-9', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     ),
-                    dbc.Button(
-                        [top_tags[9][0].capitalize(), dbc.Badge(top_tags[9][1],
-                            color="light", className="ml-1")],
-                        id = 'tag-10', className='w3-auto w3-blue tags4'
+                    dbc.Button('GitHub',
+                        id = 'tag-10', n_clicks_timestamp=0,
+                        className='w3-auto w3-blue tags4'
                     )
                 ])
             ], className='w3-dark-grey w3-margin-right w3-padding-large w3-round-large'),
@@ -306,25 +296,25 @@ app.layout = html.Div([
 @app.callback(
     Output('tags', 'value'),
     [Input('tag-1', 'children'),
-    Input('tag-1', 'n_clicks'),
+    Input('tag-1', 'n_clicks_timestamp'),
     Input('tag-2', 'children'),
-    Input('tag-2', 'n_clicks'),
+    Input('tag-2', 'n_clicks_timestamp'),
     Input('tag-3', 'children'),
-    Input('tag-3', 'n_clicks'),
+    Input('tag-3', 'n_clicks_timestamp'),
     Input('tag-4', 'children'),
-    Input('tag-4', 'n_clicks'),
+    Input('tag-4', 'n_clicks_timestamp'),
     Input('tag-5', 'children'),
-    Input('tag-5', 'n_clicks'),
+    Input('tag-5', 'n_clicks_timestamp'),
     Input('tag-6', 'children'),
-    Input('tag-6', 'n_clicks'),
+    Input('tag-6', 'n_clicks_timestamp'),
     Input('tag-7', 'children'),
-    Input('tag-7', 'n_clicks'),
+    Input('tag-7', 'n_clicks_timestamp'),
     Input('tag-8', 'children'),
-    Input('tag-8', 'n_clicks'),
+    Input('tag-8', 'n_clicks_timestamp'),
     Input('tag-9', 'children'),
-    Input('tag-9', 'n_clicks'),
+    Input('tag-9', 'n_clicks_timestamp'),
     Input('tag-10', 'children'),
-    Input('tag-10', 'n_clicks')],
+    Input('tag-10', 'n_clicks_timestamp')],
     [State('tags', 'value')])
 def search_tag_click(tag1, nc1, tag2, nc2, tag3, nc3, tag4, nc4, tag5, nc5,
     tag6, nc6, tag7, nc7, tag8, nc8, tag9, nc9, tag10, nc10, existed_tags):
@@ -332,26 +322,29 @@ def search_tag_click(tag1, nc1, tag2, nc2, tag3, nc3, tag4, nc4, tag5, nc5,
         existed_tags = set()
     else:
         existed_tags = set(existed_tags,)
-    if nc1:
-        existed_tags.update([tag1[0]])
-    if nc2:
-        existed_tags.update([tag2[0]])
-    if nc3:
-        existed_tags.update([tag3[0]])
-    if nc4:
-        existed_tags.update([tag4[0]])
-    if nc5:
-        existed_tags.update([tag5[0]])
-    if nc6:
-        existed_tags.update([tag6[0]])
-    if nc7:
-        existed_tags.update([tag7[0]])
-    if nc8:
-        existed_tags.update([tag8[0]])
-    if nc9:
-        existed_tags.update([tag9[0]])
-    if nc10:
-        existed_tags.update([tag10[0]])
+    btn_list = [int(nc1), int(nc2), int(nc3), int(nc4), int(nc5), int(nc6),
+        int(nc7), int(nc8), int(nc9), int(nc10)]
+    index = btn_list.index(max(btn_list))
+    if index == 0:
+        existed_tags.update([tag1])
+    if index == 1:
+        existed_tags.update([tag2])
+    if index == 2:
+        existed_tags.update([tag3])
+    if index == 3:
+        existed_tags.update([tag4])
+    if index == 4:
+        existed_tags.update([tag5])
+    if index == 5:
+        existed_tags.update([tag6])
+    if index == 6:
+        existed_tags.update([tag7])
+    if index == 7:
+        existed_tags.update([tag8])
+    if index == 8:
+        existed_tags.update([tag9])
+    if index == 9:
+        existed_tags.update([tag10])
     return list(existed_tags)
 
 # Search results set to be hidden before the a search is made
@@ -407,7 +400,6 @@ def reset_next(query):
     Input('next-btn', 'n_clicks')])
 def recieve_query(query, next_click):
     query = json.loads(query)
-
     if not query:
         return '', ''
     if not next_click:
@@ -474,4 +466,4 @@ def search_result(content, rec_query, query):
     return output_list
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=5555)
+    app.run_server(debug=False, host='0.0.0.0', port=80)

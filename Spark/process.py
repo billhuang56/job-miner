@@ -25,7 +25,10 @@ def main(fn, es_host):
     jd = sqlContext.read.parquet(fn)
     jd.printSchema()
 
-    # Step 1: Extract word lemmas from the job description field
+    # Step 1: Remove all the duplicates
+    jd = jd.dropDuplicates(['job_title', 'state', 'job_description'])
+
+    # Step 2: Extract word lemmas from the job description field
     jd = clean_description(jd)
 
     # Optional Step: Find common words that appear in many of the job postings
@@ -34,13 +37,13 @@ def main(fn, es_host):
 
     #jd = generate_frequent_words(jd.select('stemmed'))
 
-    # Step 2: Extract keywords and assign tags
+    # Step 3: Extract keywords and assign tags
     jd = assign_tags(jd)
 
-    # Step 3: Load the data to Elasticsearch
+    # Step 4: Load the data to Elasticsearch
     load_es(jd, es_host)
 
-    # Step 4: update tag counts and state list
+    # Step 5: update tag counts and state list
     update_state_list(jd.select("state"))
     tag_count(jd.select("tags"))
 

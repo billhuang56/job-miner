@@ -8,6 +8,8 @@ bin-release/
 .settings/
 
 # Executables
+*.pyc
+*.pkl
 *.jars
 .DS_Store
 *.swf
