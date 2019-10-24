@@ -51,11 +51,11 @@ def main(fn, es_host):
     jd = assign_tags(jd)
 
     # Step 4: Load the data to Elasticsearch
-    #load_es(jd)
+    load_es(jd)
 
     # Step 5: update tag counts and state list
-    #update_state_list(jd.select("state"))
-    #tag_count(jd.select("tags"))
+    update_state_list(jd.select("state"))
+    tag_count(jd.select("tags"))
 
 if __name__ == "__main__":
     main(conf.PARQUET_PATH, conf.ES_HOST)
