@@ -1,11 +1,21 @@
 import boto3
 import pickle
+import logging
+from datetime import date
 from termcolor import colored
 from pyspark.sql.functions import monotonically_increasing_id, explode, countDistinct
-
+import config as conf
 '''
 Generate a list of words that appear in 40% of the documents
 '''
+# ===== Logger Configs =====
+TS = date.today().strftime('%y%m%d')
+logger = logging.getLogger('jd_logger')
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler(conf.LOG_DIR + TS + '_batch_process.log')
+fh.setLevel(logging.INFO)
+logger.addHandler(fh)
+
 def frequency_cutoff(file, frequency):
     """
     Calculate the number of documents needed for a document frequency threshold
@@ -36,18 +46,17 @@ def generate_frequent_words(jd, cutoff=0.4):
         jd: dataframe with job description stemmed
         cutoff: user specified document frequency threshold
     """
-    print(colored("[Starting]: Generate Common Words", "red"))
-    print(colored("[PROCESSING]: Constructing ID", "red"))
-    jd_wid = jd.withColumn("id", monotonically_increasing_id())
+    logger.info('[Starting]: Generate Common Words')
+    logger.info('[PROCESSING]: Constructing ID')
+    jd_wid = jd.withColumn('id', monotonically_increasing_id())
 
-    print(colored("[PROCESSING]: Explode", "red"))
-    jd_exploded = jd_wid.withColumn("token", explode("stemmed"))
-    doc_freq = jd_exploded.groupBy("token").agg(countDistinct("id").alias("df"))
+    logger.info('[PROCESSING]: Explode')
+    jd_exploded = jd_wid.withColumn('token', explode('stemmed'))
+    doc_freq = jd_exploded.groupBy('token').agg(countDistinct('id').alias('df'))
 
-    print(colored("[PROCESSING]: Assemble Word List", "red"))
+    logger.info('[PROCESSING]: Assemble Word List')
     freq_words = doc_freq.filter(doc_freq['df'] > frequency_cutoff(jd, cutoff))
     word_list = freq_words.select('token').rdd.map(lambda row : row[0]).collect()
 
-    print(colored("[Finished]: Generate Common Words", "green"))
-    dump_pickle('s3a://jd-parquet/jd_stemmed.parquet',
-        'jd-parquet', 'assets/common_jd_words.pkl')
+    logger.info('[Finished]: Generate Common Words')
+    dump_pickle(word_list, conf.PARQUET_BUCKET, 'assets/common_jd_words.pkl')

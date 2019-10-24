@@ -1,16 +1,28 @@
 import boto3
 import pickle
-from termcolor import colored
+import logging
+from datetime import date
 from pyspark.sql.functions import udf
 from pyspark.sql.types import ArrayType, StringType
 from generate_common_words import dump_pickle
-
+import config as conf
 '''
 Assign Top 500 Stackoverflow tags to job postings
 '''
+# ===== Logger Configs =====
+TS = date.today().strftime('%y%m%d')
+logger = logging.getLogger('jd_logger')
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler(conf.LOG_DIR + TS + '_batch_process.log')
+fh.setLevel(logging.INFO)
+logger.addHandler(fh)
+
 def read_pickle(bucket, key):
     s3 = boto3.resource('s3')
-    pickled = pickle.loads(s3.Bucket(bucket).Object(key).get()['Body'].read())
+    pickled = pickle.loads(s3.Bucket(bucket)\
+                             .Object(key)\
+                             .get()['Body']\
+                             .read())
     return pickled
 
 def filter_common_words(tokens, word_list):
@@ -43,17 +55,17 @@ def assign_tags(jd):
     Returns:
         a dataframe with columns containing keywords and tags
     """
-    print(colored("[STARTING]: Assigning Tags", "green"))
-    common_words = read_pickle('jd-parquet', 'assets/common_jd_words.pkl')
-    stack_tags = read_pickle('jd-parquet', 'assets/stack_tags.pkl')
+    logger.info('[STARTING]: Assigning Tags')
+    common_words = read_pickle(conf.PARQUET_BUCKET, conf.COMMON_WORDS_PATH)
+    stack_tags = read_pickle(conf.PARQUET_BUCKET, conf.TAG_PATH)
 
-    print(colored("[PROCESSING]: Removing Common Words", "red"))
+    logger.info('[PROCESSING]: Removing Common Words')
     cw_remover = udf(lambda body: filter_common_words(body, common_words), ArrayType(StringType()))
-    jd_keywords = jd.withColumn("keywords", cw_remover("stemmed"))
+    jd_keywords = jd.withColumn('keywords', cw_remover('stemmed'))
 
-    print(colored("[PROCESSING]: Getting Tags", "red"))
+    logger.info('[PROCESSING]: Getting Tags')
     tagger = udf(lambda body: select_tag_words(body, stack_tags), ArrayType(StringType()))
-    jd_tags = jd_keywords.withColumn("tags", tagger('keywords'))
+    jd_tags = jd_keywords.withColumn('tags', tagger('keywords'))
 
-    print(colored("[Finished]: Assigning Tags", "green"))
+    logger.info('[Finished]: Assigning Tags')
     return jd_tags

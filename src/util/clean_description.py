@@ -1,5 +1,6 @@
 import re
-from termcolor import colored
+import logging
+from datetime import date
 from nltk.stem import WordNetLemmatizer
 from pyspark.ml.feature import StopWordsRemover
 from pyspark.ml.feature import Tokenizer
@@ -9,6 +10,14 @@ from pyspark.sql.types import ArrayType, StringType
 '''
 Converts messy body of texts into word stems
 '''
+
+# ===== Logger Configs =====
+TS = date.today().strftime('%y%m%d')
+logger = logging.getLogger('jd_logger')
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler(conf.LOG_DIR + TS + '_batch_process.log')
+fh.setLevel(logging.INFO)
+logger.addHandler(fh)
 
 def remove_punctuation(body):
     """
@@ -21,8 +30,8 @@ def remove_punctuation(body):
         A string with clean-up procedures applied
     """
     punctuation_removed = re.sub(r'[^\sa-zA-Z]', ' ', str(body))
-    spaces_removed = re.sub(r'\s+', ' ', punctuation_removed, flags=re.DOTALL)
-    line_removed = spaces_removed.replace("\n", " ")
+    spaces_removed = re.sub(r'\s+', ' ', punctuation_removed, flags = re.DOTALL)
+    line_removed = spaces_removed.replace('\n', ' ')
     return str(line_removed)
 
 def lemmatize(tokens):
@@ -45,26 +54,27 @@ def clean_description(jd):
         jd: the dataframe generated from Parquet files
     Returns:
         jd_stemmed: A dataframe with clean-up procedures applied to the
-            job_description field
+                    job_description field
     """
-    print(colored("[Starting]: Cleaning Job Description", "green"))
-    print(colored("[PROCESSING]: Removing Punctuations", "red"))
+    logger.info('[Starting]: Cleaning Job Description')
+    logger.info('[PROCESSING]: Removing Punctuations')
     punc_remover = udf(lambda body: remove_punctuation(body), StringType())
-    jd_p_removed = jd.withColumn("p_removed", punc_remover("job_description"))
+    jd_p_removed = jd.withColumn('p_removed', punc_remover('job_description'))
 
-    print(colored("[PROCESSING]: Tokenizing Text Vectors", "red"))
-    tokenizer = Tokenizer(inputCol="p_removed", outputCol="tokenized")
+    logger.info('[PROCESSING]: Tokenizing Text Vectors')
+    tokenizer = Tokenizer(inputCol = 'p_removed', outputCol = 'tokenized')
     jd_tokenized = tokenizer.transform(jd_p_removed)
 
-    print(colored("[PROCESSING]: Removing Stopwords", "red"))
-    sw_remover = StopWordsRemover(inputCol="tokenized", outputCol="sw_removed")
+    logger.info('[PROCESSING]: Removing Stopwords')
+    sw_remover = StopWordsRemover(inputCol = 'tokenized', outputCol = 'sw_removed')
     jd_sw_removed = sw_remover.transform(jd_tokenized)
 
-    print(colored("[PROCESSING]: Stemming Tokenized Text", "red"))
+    logger.info('[PROCESSING]: Stemming Tokenized Text')
     stem = udf(lambda tokens: lemmatize(tokens), ArrayType(StringType()))
-    jd_stemmed = jd_sw_removed.withColumn("stemmed", stem("sw_removed"))
+    jd_stemmed = jd_sw_removed.withColumn('stemmed', stem('sw_removed'))
 
-    print(colored("[Finished] Cleaning", "green"))
+    logger.info('[Finished] Cleaning')
     jd_cleaned = jd_stemmed.select('uniq_id', 'job_title', 'company_name',
-        'state', 'post_date', 'job_description', 'stemmed')
+                                   'state', 'post_date', 'job_description',
+                                   'stemmed')
     return jd_cleaned
