@@ -1,4 +1,9 @@
 # JobMiner
+## Summary
+Within three weeks, I built a job search platform that allows user to input skill tags to search for tech jobs and recommends similar jobs to users. The platform used scrapped data from Dice.com and tags from Stackoverflow. The raw data was processed in Spark and the results were stored in Elasticsearch. The Dash app allows users to query multiple tags and similar jobs are recommended on the fly. Airflow was set up to automatically update the database. Whenever new raw data is uploaded, an Airflow sensor would be triggered to run the whole batch process. More details can be found below and in the slides. 
+ * [Demo Slides](tinyurl.com/y5n2sxsf)
+ * [Demo WebUI](datatrailblazer.me)
+
 ## Motivation 
 Finding the right tech job can be a real challenge, especially when the same role can vary significantly from company to company. It can also be a struggle for the firms to identify the right candidates, as they are often overwhelmed with applications from people who applied without scrutinizing the skills requirement. Currently, most job search sites allow users to search by job title, company name, or perhaps, keywords. However, the keyword search function is somewhat limited, and very little guidance is provided to the users on what the right words are to search. 
 
