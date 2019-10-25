@@ -1,4 +1,5 @@
 # JobMiner
+
 ## Summary
 Within three weeks, I built a job search platform that allows user to input skill tags to search for tech jobs and recommends similar jobs to users. The platform used scrapped data from Dice.com and tags from Stackoverflow. The raw data was processed in Spark and the results were stored in Elasticsearch. The Dash app allows users to query multiple tags and similar jobs are recommended on the fly. Airflow was set up to automatically update the database. Whenever new raw data is uploaded, an Airflow sensor would be triggered to run the whole batch process. More details can be found below and in the slides. 
  * [Demo Slides](https://www.tinyurl.com/y5n2sxsf)
@@ -21,6 +22,41 @@ To avoid personal bias coming up the tags and the trouble of manually modifying 
 ### Stage 2: Recommending 
 Instead of recommending jobs based on a similar set of tags or the full job description, I extracted a set of keywords from each job description and compared it against other sets of keywords. Other postings sharing the most number of keywords will be recommended as similar jobs. 
 ![Stage 2](/static/recommending.png)
+
 ## Data 
   * 9.8M scrapped Dice.com job postings 
   * Top 500 Stackoverflow tags 
+
+## Data Pipeline 
+![Pipeline](/static/pipeline.png)
+
+### Directory Structure 
+
+```bash
+├── airflow
+│   ├── dags
+│   │   ├── job_update.py
+│   │   └── spark_bash_commands.py
+│   └── plugins
+│       ├── custom_plugins.py
+│       └── airflow_config.py
+├── dash_app
+│   ├── app.py
+│   └── assets
+│       └── w3.css
+├── src
+│   ├── save_parquet.py
+│   ├── process.py
+│   └── util
+│       ├── clean_description.py
+│       ├── generate_common_words.py
+│       ├── match_tags.py
+│       ├── save_data.py
+│       └── config.py
+├── database_tests
+│   ├── db_test.py
+│   ├── db_config.py
+│   └── tag_count.pkl
+├── README.md
+└── .gitignore
+```
