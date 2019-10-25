@@ -6,7 +6,7 @@ import time
 import random
 import pickle
 from scipy import stats
-import config as conf
+import db_config as conf
 
 '''
 Run query speed tests from local machines between PostgreSQL and Elasticsearch
