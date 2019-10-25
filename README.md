@@ -55,8 +55,7 @@ Instead of recommending jobs based on a similar set of tags or the full job desc
 │       └── config.py
 ├── database_tests
 │   ├── db_test.py
-│   ├── db_config.py
-│   └── tag_count.pkl
+│   └── db_config.py
 ├── README.md
 └── .gitignore
 ```
