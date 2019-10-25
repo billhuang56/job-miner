@@ -16,11 +16,13 @@ I decided to build a job search platform that starts with your skills and intere
 
 ### Stage 1: Tagging 
 To avoid personal bias coming up the tags and the trouble of manually modifying tags over time, I decided to use the Top 500 tags from Stackoverflow. I used SQL to query the tags and assigned them onto the job postings. Users can then search for jobs by inputting any number of tags. 
-![Stage 1](/static/stage_1_tagging.png)
+
+![Stage 1](/static/tagging.png)
 
 ### Stage 2: Recommending 
 Instead of recommending jobs based on a similar set of tags or the full job description, I extracted a set of keywords from each job description and compared it against other sets of keywords. Other postings sharing the most number of keywords will be recommended as similar jobs. 
 
+![Stage 2](/static/recommending.png)
 ## Data 
   * 9.8M scrapped Dice.com job postings 
   * Top 500 Stackoverflow tags 
