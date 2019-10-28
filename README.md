@@ -3,10 +3,16 @@
 ## Table of Contents 
 - [Summary](#Summary)
 - [Motivation](#Motivation)
-- [Approach](#heading-2)
-  * [Stage 1: Tagging](#sub-heading-1)
-  * [Stage 2: Recommending ](#sub-heading-2)
-    
+- [Approach](#Approach)
+  * [Stage 1: Tagging](#Stage 1: Tagging)
+  * [Stage 2: Recommending ](#Stage 1: Tagging)
+ - [Data](#Data)
+ - [Data Pipeline](#Data Pipeline)
+   * [Directory Structure](#Directory Structure)
+   * [Batch Processing](#Batch Processing)
+   * [Database Selection](#Database Selection)
+   
+
 <!-- toc -->
 ## Summary
 Within three weeks, I built a job search platform that allows user to input skill tags to search for tech jobs and recommends similar jobs to users. The platform used scrapped data from Dice.com and tags from Stackoverflow. The raw data was processed in Spark and the results were stored in Elasticsearch. The Dash app allows users to query multiple tags and similar jobs are recommended on the fly. Airflow was set up to automatically update the database. Whenever new raw data is uploaded, an Airflow sensor would be triggered to run the whole batch process. More details can be found below and in the slides. 
