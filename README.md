@@ -59,3 +59,31 @@ Instead of recommending jobs based on a similar set of tags or the full job desc
 ├── README.md
 └── .gitignore
 ```
+
+### Batch Processing 
+#### XML-Parquet Conversion 
+Raw scrapped data was in XML format. It was converted to Parquet using Databrick's Spark-XML package for the following reasons: 
+ * Reduce the overall data size
+ * Standardize raw data format 
+ * Increase data ingestion speed 
+
+#### Duplicates Removal
+Job postings from the same company, state, and with the same job description are removed as duplicates.  
+
+#### Tags Assignment 
+The Top 500 tags were parsed and matched to words that appear in job postings. The parsing entails removing the version number and the brand name for some tools. For example, python-3.X -> python and apache-spark -> spark. 
+
+#### Keywords Extraction
+All the non-essential words were removed and the leftover words were used to construct a concise set of keywords for each job posting for similiarity comparsion. The steps are listed below: 
+ 1. Regex Parsing: removes symbols, punctuations, extra line, leading spaces, and numbers. 
+ 2. Tokenization: tokenizes the text 
+ 3. Stopword Removal: removes standard stopwords given in the NLTK package 
+ 4. Lemmatization: extracts word lemmas
+ 5. Common Job Description Words Removal: Document frequency for every unique word that appeared in a posting was computed. If a word appeared in over 50% of the job postings, it was considered as a common job description word. The common words were subsequently removed.
+ 
+#### Bulk Writing to Elasticsearch 
+Elasticsearch-Hadoop package was used to writing the results from Pyspark dataframe to Elasticsearch. The bulk writing size was reduced to 100 to avoid out of memory issues.
+
+
+
+
