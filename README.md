@@ -99,9 +99,20 @@ Below is a screenshot of email notifications sent to engineers.
 
 ![airflow_email](/static/airflow_email.png)
 ### Optimization 
-### Visualization 
-### Future Vision
 
+### Visualization 
+![dash](/static/dash.png)
+ 1. State selection input 
+ 2. Tags input from text or dropdown 
+ 3. Suggested tags 
+ 4. Next button 
+ 5. Raw job posting information: title, date and full job description 
+ 6. Associated tags 
+ 7. Job recommendations 
+
+### Future Vision
+For the future, there are a few things that can be implemented to improve on the existing project: 
+ 1. 
 
 
 
