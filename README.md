@@ -84,6 +84,24 @@ All the non-essential words were removed and the leftover words were used to con
 #### Bulk Writing to Elasticsearch 
 Elasticsearch-Hadoop package was used to writing the results from Pyspark dataframe to Elasticsearch. The bulk writing size was reduced to 100 to avoid out of memory issues.
 
+### Database Selection 
+It was initially which data
+#### PostgreSQL
+Postgres
+#### Elasticsearch 
+#### Speed Test 
+#### Functionality Test
+### Airflow
+Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfuly raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
+![airflow](/static/airflow.png)
+Below is a screenshot of email notifications sent to engineers. 
+![airflow_email](/static/airflow_email.png)
+### Optimization 
+### Visualization 
+### Future Vision
+
+
+
 
 
 
