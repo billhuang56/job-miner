@@ -1,8 +1,8 @@
 # JobMiner
 
 ## Table of Contents 
-- [Summary](#heading)
-- [Motivation](#heading-1)
+- [Summary](#Summary)
+- [Motivation](#Motivation)
 - [Approach](#heading-2)
   * [Stage 1: Tagging](#sub-heading-1)
   * [Stage 2: Recommending ](#sub-heading-2)
