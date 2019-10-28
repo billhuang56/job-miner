@@ -112,7 +112,9 @@ Below is a screenshot of email notifications sent to engineers.
 
 ### Future Vision
 For the future, there are a few things that can be implemented to improve on the existing project: 
- 1. 
+ 1. Not all of the tags from Stackoverflow are meaningful and relevant to job postings. A process that filters or better transforms Stackoverflow tags can be implemented to allow users to more precisely search by skills and interests. 
+ 2. Currently Airflow is only scheduled to run the whole batch process again. It can be changed in the way that whenever new scrapped data comes in, Airflow runs a task that compares new and existing postings and only updates/removes postings rather than re-building the whole database. 
+ 3. More benchmarks and tests can be done. Other NLP methods and databases might be better suited for the project. 
 
 
 
