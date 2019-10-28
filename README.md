@@ -2,6 +2,7 @@
 
 ## Summary
 Within three weeks, I built a job search platform that allows user to input skill tags to search for tech jobs and recommends similar jobs to users. The platform used scrapped data from Dice.com and tags from Stackoverflow. The raw data was processed in Spark and the results were stored in Elasticsearch. The Dash app allows users to query multiple tags and similar jobs are recommended on the fly. Airflow was set up to automatically update the database. Whenever new raw data is uploaded, an Airflow sensor would be triggered to run the whole batch process. More details can be found below and in the slides. 
+
  * [Demo Slides](https://www.tinyurl.com/y5n2sxsf)
  * [Demo WebUI](http://www.datatrailblazer.me)
 
@@ -62,7 +63,7 @@ Instead of recommending jobs based on a similar set of tags or the full job desc
 
 ### Batch Processing 
 #### XML-Parquet Conversion 
-Raw scrapped data was in XML format. It was converted to Parquet using Databrick's Spark-XML package for the following reasons: 
+Raw scrapped data was in '''XML''' format. It was converted to Parquet using Databrick's '''Spark-XML''' package for the following reasons: 
  * Reduce the overall data size
  * Standardize raw data format 
  * Increase data ingestion speed 
@@ -71,7 +72,7 @@ Raw scrapped data was in XML format. It was converted to Parquet using Databrick
 Job postings from the same company, state, and with the same job description are removed as duplicates.  
 
 #### Tags Assignment 
-The Top 500 tags were parsed and matched to words that appear in job postings. The parsing entails removing the version number and the brand name for some tools. For example, python-3.X -> python and apache-spark -> spark. 
+The Top 500 tags were parsed and matched to words that appear in job postings. The parsing entails removing the version number and the brand name for some tools. For example, '''python-3.X''' -> '''python''' and '''apache-spark''' -> '''spark'''. 
 
 #### Keywords Extraction
 All the non-essential words were removed and the leftover words were used to construct a concise set of keywords for each job posting for similiarity comparsion. The steps are listed below: 
@@ -82,14 +83,21 @@ All the non-essential words were removed and the leftover words were used to con
  5. Common Job Description Words Removal: Document frequency for every unique word that appeared in a posting was computed. If a word appeared in over 50% of the job postings, it was considered as a common job description word. The common words were subsequently removed.
  
 #### Bulk Writing to Elasticsearch 
-Elasticsearch-Hadoop package was used to writing the results from Pyspark dataframe to Elasticsearch. The bulk writing size was reduced to 100 to avoid out of memory issues.
+'''Elasticsearch-Hadoop''' package was used to writing the results from Pyspark dataframe to Elasticsearch. The bulk writing size was reduced to 100 to avoid out of memory issues.
 
-### Database Selection 
-It was initially which data
-#### PostgreSQL
-Postgres
-#### Elasticsearch 
-#### Speed Test 
+### Database Selection
+PostgreSQL and Elasticsearch were shortlisted because PostgreSQL is a popular choice for storing inventory data, while Elasticsearch is known for its full text search capabilities. Both databases were set up and benchmarked and Elasticsearch was determined to be the better choice. The schema/mapping is shown below. 
+
+![schema](/static/schema.png)
+
+#### PostgreSQL Setup
+PostgreSQL was set up on an EC2 instance and JDBC connector was used to write the results from Pyspark to a PostgresSQL table. The '''State''' column was indexed and the '''Tags''' column was inverse-indexed. 
+
+#### Elasticsearch Setup
+Elasticsearch was set up as a cluster on three EC2 instances. 
+
+#### Speed Tests 
+The first test was done to using PostgreSQL's '''CONTAINS''' query against Elasticsearch's '''MATCH''' query, when querying 5 randomly selected tags 2000 times. 98% of the PostgreSQL results was empty due to the limitation that '''CONTAINS''' query only returns posting that contain all the input tags. 
 #### Functionality Test
 ### Airflow
 Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfuly raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
@@ -107,7 +115,7 @@ Both Spark and Elasticsearch were configured to allow the batch process to run s
  * Executor memory 
  * Memory/storage fraction 
  
- For Elasticsearch, ```index.blocks.read_only_allow_delete``` was to ```False``` to prevent Elasticsearch from crashing when storage was low. 
+For Elasticsearch, ```index.blocks.read_only_allow_delete``` was to ```False``` to prevent Elasticsearch from crashing when storage was low. 
 
 ### Visualization 
 ![dash](/static/dash.png)
