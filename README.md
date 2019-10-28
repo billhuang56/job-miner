@@ -98,7 +98,16 @@ Since the task was signed to be a daily batch job, Airflow was incorporated to s
 Below is a screenshot of email notifications sent to engineers. 
 
 ![airflow_email](/static/airflow_email.png)
+
 ### Optimization 
+Both Spark and Elasticsearch were configured to allow the batch process to run smoothly. The Spark jobs failed prior to any tuning due to out of memory errors. Here are a few parameters adjusted to allow the job to run: 
+
+ * Number of executors
+ * Cores per executor
+ * Executor memory 
+ * Memory/storage fraction 
+ 
+ For Elasticsearch, ```index.blocks.read_only_allow_delete``` was to ```False``` to prevent Elasticsearch from crashing when storage was low. 
 
 ### Visualization 
 ![dash](/static/dash.png)
