@@ -88,7 +88,7 @@ All the non-essential words were removed and the leftover words were used to con
 ### Database Selection
 PostgreSQL and Elasticsearch were shortlisted because PostgreSQL is a popular choice for storing inventory data, while Elasticsearch is known for its full text search capabilities. Both databases were set up and benchmarked and Elasticsearch was determined to be the better choice. The schema/mapping is shown below. 
 
-![schema](/static/schema.png =100x20)
+![schema](/static/schema.png)
 
 #### PostgreSQL Setup
 PostgreSQL was set up on an EC2 instance and JDBC connector was used to write the results from Pyspark to a PostgresSQL table. The '''State''' column was indexed and the '''Tags''' column was inverse-indexed. 
@@ -101,6 +101,7 @@ The first test was done to using PostgreSQL's '''CONTAINS''' query against Elast
 #### Functionality Test
 ### Airflow
 Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfuly raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
+
 ![airflow](/static/airflow.png)
 
 Below is a screenshot of email notifications sent to engineers. 
