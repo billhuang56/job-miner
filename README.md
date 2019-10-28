@@ -94,7 +94,9 @@ Postgres
 ### Airflow
 Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfuly raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
 ![airflow](/static/airflow.png)
+
 Below is a screenshot of email notifications sent to engineers. 
+
 ![airflow_email](/static/airflow_email.png)
 ### Optimization 
 ### Visualization 
