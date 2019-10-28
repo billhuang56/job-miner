@@ -97,8 +97,15 @@ PostgreSQL was set up on an EC2 instance and JDBC connector was used to write th
 Elasticsearch was set up as a cluster on three EC2 instances. 
 
 #### Speed Tests 
-The first test was done to using PostgreSQL's '''CONTAINS''' query against Elasticsearch's '''MATCH''' query, when querying 5 randomly selected tags 2000 times. 98% of the PostgreSQL results was empty due to the limitation that '''CONTAINS''' query only returns posting that contain all the input tags. 
+The first test was done using PostgreSQL's '''CONTAINS''' query against Elasticsearch's '''MATCH''' query, when querying 5 randomly selected tags 2000 times. 98% of the PostgreSQL results was empty due to the limitation that '''CONTAINS''' query only returns posting that contain all the input tags. 
+
+The second test was done using PostgreSQL's '''ANY''' query against Elasticsearch's '''MATCH''' query. PostgreSQL is then marginally faster than Elasticsearch but there was no optimal approach to rank the query results.
+
+![airflow](/static/results.png)
+
 #### Functionality Test
+Elasticsearch wins the functionality because it returns query results ranked by similarity. When querying a set of tags, Elasticsearch can return postings contain the most number of tags. When recommending similar jobs based on keywords, Elasticsearch can return other job postings that share the most number of keywords. 
+
 ### Airflow
 Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfuly raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
 
@@ -118,7 +125,9 @@ Both Spark and Elasticsearch were configured to allow the batch process to run s
  
 For Elasticsearch, ```index.blocks.read_only_allow_delete``` was to ```False``` to prevent Elasticsearch from crashing when storage was low. 
 
-### Visualization 
+### Web UI 
+When the user inputs a set of tags, a query is sent to Elasticsearch and it would return postings within the chosen state that contains the most number tags. Additionally, the set of keywords associated with the posting on display is queried through Elasticsearch to identify the Top 4 other most similar postings. 
+
 ![dash](/static/dash.png)
  1. State selection input 
  2. Tags input from text or dropdown 
