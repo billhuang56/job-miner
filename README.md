@@ -5,7 +5,7 @@
 - [Motivation](#Motivation)
 - [Approach](#Approach)
   * [Stage 1: Tagging](#Stage 1: Tagging)
-  * [Stage 2: Recommending ](#Stage 1: Tagging)
+  * [Stage 2: Recommending ](#Stage 2: Tagging)
  - [Data](#Data)
  - [Data Pipeline](#Data Pipeline)
    * [Directory Structure](#Directory Structure)
