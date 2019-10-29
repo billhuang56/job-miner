@@ -20,7 +20,7 @@
 
 <!-- toc -->
 ## Summary
-Within three weeks, I built a job search platform that allows user to input skill tags to search for tech jobs and recommends similar jobs to users. The platform used scrapped data from Dice.com and tags from Stackoverflow. The raw data was processed in Spark and the results were stored in Elasticsearch. The Dash app allows users to query multiple tags and similar jobs are recommended on the fly. Airflow was set up to automatically update the database. Whenever new raw data is uploaded, an Airflow sensor would be triggered to run the whole batch process. More details can be found below and in the slides. 
+Within three weeks, I built a job search platform that allows users to input skill tags to search for tech jobs and recommends similar jobs to users. The platform used scrapped data from Dice.com and tags from Stackoverflow. The raw data was processed in Spark and the results were stored in Elasticsearch. The Dash app allows users to query multiple tags and similar jobs are recommended on the fly. Airflow was set up to update the database automatically. Whenever new raw data is uploaded, an Airflow sensor would be triggered to run the whole batch process. More details can be found below and in the slides. 
 
  * [Demo Slides](https://www.tinyurl.com/y5n2sxsf)
  * [Demo WebUI](http://www.datatrailblazer.me)
@@ -94,7 +94,7 @@ Job postings from the same company, state, and with the same job description are
 The Top 500 tags were parsed and matched to words that appear in job postings. The parsing entails removing the version number and the brand name for some tools. For example, '''python-3.X''' -> '''python''' and '''apache-spark''' -> '''spark'''. 
 
 #### Keywords Extraction
-All the non-essential words were removed and the leftover words were used to construct a concise set of keywords for each job posting for similiarity comparsion. The steps are listed below: 
+All the non-essential words were removed and the leftover words were used to construct a concise set of keywords for each job posting for similarity comparison. The steps are listed below: 
  1. Regex Parsing: removes symbols, punctuations, extra line, leading spaces, and numbers. 
  2. Tokenization: tokenizes the text 
  3. Stopword Removal: removes standard stopwords given in the NLTK package 
@@ -105,7 +105,7 @@ All the non-essential words were removed and the leftover words were used to con
 '''Elasticsearch-Hadoop''' package was used to writing the results from Pyspark dataframe to Elasticsearch. The bulk writing size was reduced to 100 to avoid out of memory issues.
 
 ### Database Selection
-PostgreSQL and Elasticsearch were shortlisted because PostgreSQL is a popular choice for storing inventory data, while Elasticsearch is known for its full text search capabilities. Both databases were set up and benchmarked and Elasticsearch was determined to be the better choice. The schema/mapping is shown below. 
+PostgreSQL and Elasticsearch were shortlisted because PostgreSQL is a popular choice for storing inventory data, while Elasticsearch is known for its full-text search capabilities. Both databases were set up and benchmarked and Elasticsearch was determined to be the better choice. The schema/mapping is shown below. 
 
 ![schema](/static/schema.png)
 
@@ -116,7 +116,7 @@ PostgreSQL was set up on an EC2 instance and JDBC connector was used to write th
 Elasticsearch was set up as a cluster on three EC2 instances. 
 
 #### Speed Tests 
-The first test was done using PostgreSQL's '''CONTAINS''' query against Elasticsearch's '''MATCH''' query, when querying 5 randomly selected tags 2000 times. 98% of the PostgreSQL results was empty due to the limitation that '''CONTAINS''' query only returns posting that contain all the input tags. 
+The first test was done using PostgreSQL's '''CONTAINS''' query against Elasticsearch's '''MATCH''' query, when querying 5 randomly selected tags 2000 times. 98% of the PostgreSQL results was empty due to the limitation that '''CONTAINS''' query only returns postings that contain all the input tags. 
 
 The second test was done using PostgreSQL's '''ANY''' query against Elasticsearch's '''MATCH''' query. PostgreSQL is then marginally faster than Elasticsearch but there was no optimal approach to rank the query results.
 
@@ -126,7 +126,7 @@ The second test was done using PostgreSQL's '''ANY''' query against Elasticsearc
 Elasticsearch wins the functionality because it returns query results ranked by similarity. When querying a set of tags, Elasticsearch can return postings contain the most number of tags. When recommending similar jobs based on keywords, Elasticsearch can return other job postings that share the most number of keywords. 
 
 ### Airflow
-Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfuly raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
+Since the task was signed to be a daily batch job, Airflow was incorporated to schedule and to run the jobs automatically. A customized sensor was written to detect new successfully raw data uploads in S3. The batch process would then be triggered and any failure and success would be emailed to the data engineers. 
 
 ![airflow](/static/airflow.png)
 
