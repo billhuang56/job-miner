@@ -5,12 +5,17 @@
 - [Motivation](#Motivation)
 - [Approach](#Approach)
   * [Stage 1: Tagging](#Stage-1-Tagging)
-  * [Stage 2: Recommending ](#Stage-2-Tagging)
- - [Data](#Data)
- - [Data Pipeline](#Data-Pipeline)
+  * [Stage 2: Recommending ](#Stage-2-Recommending)
+- [Data](#Data)
+- [Data Pipeline](#Data-Pipeline)
    * [Directory Structure](#Directory-Structure)
    * [Batch Processing](#Batch-Processing)
    * [Database Selection](#Database-Selection)
+   * [Airflow](#Airflow)
+   * [Optimization](#Optimization)
+   * [Web UI](#Web-UI)
+ - [Future Vision](#Future-vision)
+   
    
 
 <!-- toc -->
@@ -151,7 +156,7 @@ When the user inputs a set of tags, a query is sent to Elasticsearch and it woul
  6. Associated tags 
  7. Job recommendations 
 
-### Future Vision
+## Future Vision
 For the future, there are a few things that can be implemented to improve on the existing project: 
  1. Not all of the tags from Stackoverflow are meaningful and relevant to job postings. A process that filters or better transforms Stackoverflow tags can be implemented to allow users to more precisely search by skills and interests. 
  2. Currently Airflow is only scheduled to run the whole batch process again. It can be changed in the way that whenever new scrapped data comes in, Airflow runs a task that compares new and existing postings and only updates/removes postings rather than re-building the whole database. 
